@@ -17,7 +17,7 @@ Then, move into the project directory and run the following command:
 cd fqstat/
 pip install -e .
 ```
-This will install fqstat as a package along with all of it's dependecies using setuptools. The -e flag is optional and simply allows the package to be modified without reinstallation.
+This will install fqstat as a package along with all of it's dependencies using setuptools. The -e flag is optional and simply allows the package to be modified without reinstallation.
 
 fqstat can also be run without being installed as a package. For example,
 ```bash
@@ -28,7 +28,7 @@ fqstat.py: error: the following arguments are required: root_dir
 ```
 
 ## Usage
-fqstat requires 1 positional argument referred to as the root_dir that is as the starting point of the search. It also supports the following optional parameters:
+fqstat requires 1 positional argument referred to as the root_dir which is used as the starting point of the search. It also supports the following optional parameters:
 
 | Flag          | Description                                     |
 | ------------- | ----------------------------------------------- |
