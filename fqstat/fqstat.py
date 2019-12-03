@@ -7,8 +7,8 @@ import pathlib
 import json
 
 # 3rd-party
-from prettytable import PrettyTable
 from Bio import SeqIO
+from prettytable import PrettyTable
 
 
 # helper functions
@@ -92,6 +92,7 @@ def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, quiet: bo
 
     if not quiet:
         table = PrettyTable() # library to provide a fancy table for easy reading
+
         # initialize the header row 
         table.field_names = [ 
             'File',
@@ -99,6 +100,7 @@ def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, quiet: bo
             'Total Records',
             f'Percent (> {num_nucleotides} Nucleotides)',
         ]
+
         # append rows to the table object
         for key, value in data.items(): 
             table.add_row([
@@ -109,7 +111,6 @@ def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, quiet: bo
             ])
 
         print(table) # display results table
-
 
 def cli() -> None:
     """Main entry-point for the fqstat command-line interface.
