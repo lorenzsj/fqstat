@@ -4,6 +4,7 @@ Recursively find FastQ files and report the percent of records with nucleotides 
 ## Dependencies
 * Python3.6
 * BioPython
+* prettytable
 
 ## Installation
 It is recommended that fqstat be installed in a new virtual python environment. For example,
@@ -21,7 +22,7 @@ This will install fqstat as a package along with all of it's dependecies using s
 fqstat can also be run without being installed as a package. For example,
 ```bash
 python fqstat/fqstat.py
-usage: fqstat.py [-h] [--pattern PATTERN] [--nucleotides INT] [--verbose]
+usage: fqstat.py [-h] [--pattern PATTERN] [--nucleotides INT] [--quiet]
                  root_dir
 fqstat.py: error: the following arguments are required: root_dir
 ```
@@ -29,14 +30,19 @@ fqstat.py: error: the following arguments are required: root_dir
 ## Usage
 fqstat requires 1 positional argument referred to as the root_dir that is as the starting point of the search. It also supports the following optional parameters:
 
-* pattern - string used to match files during the search.
-* nucleotides - number of nucleotides used as the cutoff point.
-* verbose - provide additional information.
+| Flag          | Description                                     |
+| ------------- | ----------------------------------------------- |
+| --pattern     | string used to match files during the search    |
+| --nucleotides | number of nucleotides used as the cutoff point. |
+| --quiet       | do not print results                            |
 
 ### Defaults
-* pattern - **/\*.fqstat (recursively find all \*.fqstat files)
-* nucleotides - 30
-* verbose - False
+
+| Flag          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| --pattern     | **/\*.fqstat (recursively find all \*.fqstat files) |
+| --nucleotides | 30                                                  |
+| --quiet       | False                                               |
 
 ### Examples
 Find all the \*.fqstat files in the current directory.

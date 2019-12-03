@@ -4,8 +4,10 @@
 import sys
 import argparse
 import pathlib
+import json
 
 # 3rd-party
+from prettytable import PrettyTable
 from Bio import SeqIO
 
 
@@ -41,37 +43,73 @@ def search(root_dir: pathlib.Path, pattern: str) -> list:
         err('Error: search: An unexpected error occurred.')
         raise
 
-def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, verbose: bool) -> None:
+def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, quiet: bool) -> None:
     """Recursively find FastQ files and report the percent of records with 
-       nucleotides greater than a provided value per file.
+       nucleotides greater than a provided value per file. Stores results in
+       a JSON file.
 
     Args:
         root_dir: Path (pathlib) object that serves as the starting point of 
                   the search.
         pattern: str used to match path(s) or file(s).
         num_nucleotides: int number of nucleotides used as the cutoff point.
-        verbose: bool to provide additional information.
+        quiet: bool to prevent printing result table.
 
     Returns:
         None
     """
-    matched_files = search(root_dir, pattern)
+    matched_paths = search(root_dir, pattern)
+    if not matched_paths: # quickly check if we should even begin the rest of the program
+        sys.exit('No files found.')
 
-    print(f'file\tpercent_gt_{num_nucleotides}')
-    for filename in matched_files: # filename is a Path object
-        with open(filename, 'r') as f:
+    data = {} # will be used to store the data collected from all of the found files
+    for path in matched_paths: # path is a pathlib.Path object
+        with open(path, 'r') as f:
             total_records = 0 # used to track the total number of records, due to SeqIO.parse returning a generator, can't use len()
-            total_targets = 0 # used to track the records which contain greater than num_nucleotides
+            total_targets = 0 # used to track the records which contain nucleotides greater than num_nucleotides
             
             # each record is a Bio.SeqRecord.SeqRecord object 
-            # see https://biopython.org/DIST/docs/api/Bio.SeqRecord.SeqRecord-class.html
+            # see https://biopython.org/DIST/docs/api/Bio.SeqRecord.SeqRecord-class.html for more information
             for record in SeqIO.parse(f, "fastq"):
                 total_records += 1 # increment the total number of records
                 if len(record.seq) > num_nucleotides: # if sequence contains greater than num_nuceoltides
-                    total_targets += 1 
+                    total_targets += 1
 
-            percent = total_targets/total_records
-            print(f'{filename.stem}\t{percent}')
+            # get the filename, without the .fastq extension
+            key = path.stem
+
+            # store data into dictionary
+            data[key] = {
+                'path': str(path), # convert Path object to a str for serialization
+                'total_targets': total_targets,
+                'total_records': total_records,
+                'percent': round(total_targets/total_records, 4), 
+            }
+        
+    # write data to json file
+    with open(f'scan-{num_nucleotides}_nucleotides.json', 'w') as f:
+        json.dump(data, f) # convert dictionary to json file
+
+    if not quiet:
+        table = PrettyTable() # library to provide a fancy table for easy reading
+        # initialize the header row 
+        table.field_names = [ 
+            'File',
+            'Total Targets',
+            'Total Records',
+            f'Percent (> {num_nucleotides} Nucleotides)',
+        ]
+        # append rows to the table object
+        for key, value in data.items(): 
+            table.add_row([
+                key,
+                value['total_targets'],
+                value['total_records'],
+                f"{value['percent']*100}%", # convert to easily readable percentage
+            ])
+
+        print(table) # display results table
+
 
 def cli() -> None:
     """Main entry-point for the fqstat command-line interface.
@@ -105,20 +143,20 @@ def cli() -> None:
         type=int,
         default=30,
         metavar='INT', # the placeholder value that'll be shown in -h
-        dest='num_nucleotides', # change keyword that will be used in the code
+        dest='num_nucleotides', # set the keyword from nucleotides to num_nucleotides that will be used in the code
         help="cutoff number of nucleotides",
     )
     parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help="provide additional information",
+        '--quiet',
+        action='store_true', # false by default, using --quiet disables printing results
+        help="do not print results",
     )
 
     # parse argv and return a Namespace object containing the keywords and their values
     args = parser.parse_args()
 
     # call the core program
-    fqstat(args.root_dir, args.pattern, args.num_nucleotides, args.verbose)
+    fqstat(args.root_dir, args.pattern, args.num_nucleotides, args.quiet)
 
 if __name__ == '__main__':
     cli()
