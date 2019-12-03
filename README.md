@@ -1,5 +1,5 @@
 # fqstat
-Recursively find FastQ files and report the percent of records with nucleotides greater than a provided value per file.
+Recursively find FastQ files and report the percent of records with nucleotides greater than a provided value per file. Scan results are stored in a JSON file in addition to being printed to the terminal.
 
 ## Dependencies
 * Python3.6
