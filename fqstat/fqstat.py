@@ -42,6 +42,19 @@ def search(root_dir: pathlib.Path, pattern: str) -> list:
         raise
 
 def fqstat(root_dir: pathlib.Path, pattern: str, num_nucleotides: int, verbose: bool) -> None:
+    """Recursively find FastQ files and report the percent of records with 
+       nucleotides greater than a provided value per file.
+
+    Args:
+        root_dir: Path (pathlib) object that serves as the starting point of 
+                  the search.
+        pattern: str used to match path(s) or file(s).
+        num_nucleotides: int number of nucleotides used as the cutoff point.
+        verbose: bool to provide additional information.
+
+    Returns:
+        None
+    """
     matched_files = search(root_dir, pattern)
 
     print(f'file\tpercent_gt_{num_nucleotides}')
@@ -93,14 +106,13 @@ def cli() -> None:
         default=30,
         metavar='INT', # the placeholder value that'll be shown in -h
         dest='num_nucleotides', # change keyword that will be used in the code
-        help="minimum number of nucleotides",
+        help="cutoff number of nucleotides",
     )
     parser.add_argument(
         '--verbose',
         action='store_true',
         help="provide additional information",
     )
-    
 
     # parse argv and return a Namespace object containing the keywords and their values
     args = parser.parse_args()
